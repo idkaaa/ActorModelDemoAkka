@@ -40,7 +40,6 @@ namespace ActorModelDemo
             c_TimerMessageTimer.Interval = 1000;  // 1000ms timer for now
             var system = ActorSystem.Create("MyActorSystem");
             p_WriterActor = system.ActorOf<FileWriter>("fileWriter");
-            
         }
 
         /// <summary>
@@ -88,7 +87,7 @@ namespace ActorModelDemo
         {
             string Message = $"Message {p_MessageNumber++}";
             Debug.Print($"Sending: {Message}");
-            FileWriterContent ContentMessage = new FileWriterContent(Message);
+            FileWriter.Content ContentMessage = new FileWriter.Content(Message);
             p_WriterActor.Tell(ContentMessage);
         }
 
@@ -103,7 +102,7 @@ namespace ActorModelDemo
             c_ButtonDisableTimer.Enabled = false;
 
             Debug.Print($"Starting file: {FileName}");
-            FileWriterStart StartMessage = new FileWriterStart(FileName);
+            FileWriter.Start StartMessage = new FileWriter.Start(FileName);
             p_WriterActor.Tell(StartMessage);
         }
 
@@ -118,12 +117,10 @@ namespace ActorModelDemo
 
             Debug.Print($"Stopping the file.");
 
-            // TODO: Add function to stop recording the file
-            // Actor.Stop();
             //assign callback when telling writer to stop
             Action<string, int> Callback =
                 new Action<string, int>(f_UpdateDisplayWhenDone);
-            FileWriterStop StopMessage = new FileWriterStop(Callback);
+            FileWriter.Stop StopMessage = new FileWriter.Stop(Callback);
             p_WriterActor.Tell(StopMessage);
         }
     }

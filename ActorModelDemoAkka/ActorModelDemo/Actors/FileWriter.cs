@@ -16,10 +16,69 @@ namespace ActorModelDemo.Actors
     /// </summary>
     class FileWriter :
         TypedActor, 
-        IHandle<FileWriterStart>, 
-        IHandle<FileWriterStop>, 
-        IHandle<FileWriterContent>
+        IHandle<FileWriter.Start>, 
+        IHandle<FileWriter.Stop>, 
+        IHandle<FileWriter.Content>
     {
+
+        ///Messages:
+ 
+        /// 03/09/2016 - CLH
+        /// <summary>
+        /// The message to start the fileWriter.
+        /// </summary>
+        internal class Start : Message
+        {
+            /// 03/09/2016 - CLH
+            /// <summary>
+            /// The name of the file to be written.
+            /// </summary>
+            public string p_FileName { get; private set; }
+
+            public Start(string FileName)
+            {
+                p_FileName = FileName;
+            }
+        }
+
+        /// 03/09/2016 - CLH
+        /// <summary>
+        /// The message containing content to be written to a
+        /// previously started file.
+        /// </summary>
+        internal class Content : Message
+        {
+            /// 03/09/2016 - CLH
+            /// <summary>
+            /// The content to be written to the file.
+            /// </summary>
+            public string p_Content { get; private set; }
+
+            public Content(string Content)
+            {
+                p_Content = Content;
+            }
+        }
+
+        /// 03/09/2016 - CLH
+        /// <summary>
+        /// Message to stop writing and call a callback from the 
+        /// calling thread.
+        /// </summary>
+        internal class Stop : Message
+        {
+            /// 03/09/2016 - CLH
+            /// <summary>
+            /// The callback to be executed when finished writing.
+            /// </summary>
+            public Action<string, int> p_DoneCallback;
+
+            public Stop(Action<string, int> Callback)
+            {
+                p_DoneCallback = Callback;
+            }
+        }
+
         /// 03/09/2016 - CLH
         /// <summary>
         /// The file being written.
@@ -48,7 +107,7 @@ namespace ActorModelDemo.Actors
         /// <summary>
         /// Handles start messages.
         /// </summary>
-        public void Handle(FileWriterStart StartMessage)
+        public void Handle(Start StartMessage)
         {
             if (p_IsWriting == true)
             {
@@ -73,7 +132,7 @@ namespace ActorModelDemo.Actors
         /// <summary>
         /// Handles incoming stuff to write to file.
         /// </summary>
-        public void Handle(FileWriterContent ContentMessage)
+        public void Handle(Content ContentMessage)
         {
             if (p_IsWriting == false)
             {
@@ -97,7 +156,7 @@ namespace ActorModelDemo.Actors
         /// Handles stopping the file writing process and
         /// calling the passed callback.
         /// </summary>
-        public void Handle(FileWriterStop StopMessage)
+        public void Handle(Stop StopMessage)
         {
             if (p_IsWriting == false)
             {
@@ -123,62 +182,6 @@ namespace ActorModelDemo.Actors
                 Debug.Print($"Couldn't call callback because: {Ex.Message}");
             }
             p_IsWriting = false;
-        }
-    }
-
-    /// 03/09/2016 - CLH
-    /// <summary>
-    /// The message to start the fileWriter.
-    /// </summary>
-    internal class FileWriterStart : Message
-    {
-        /// 03/09/2016 - CLH
-        /// <summary>
-        /// The name of the file to be written.
-        /// </summary>
-        public string p_FileName { get; private set; }
-
-        public FileWriterStart(string FileName)
-        {
-            p_FileName = FileName;
-        }
-    }
-
-    /// 03/09/2016 - CLH
-    /// <summary>
-    /// The message containing content to be written to a
-    /// previously started file.
-    /// </summary>
-    internal class FileWriterContent : Message
-    {
-        /// 03/09/2016 - CLH
-        /// <summary>
-        /// The content to be written to the file.
-        /// </summary>
-        public string p_Content { get; private set; }
-
-        public FileWriterContent(string Content)
-        {
-            p_Content = Content;
-        }
-    }
-
-    /// 03/09/2016 - CLH
-    /// <summary>
-    /// Message to stop writing and call a callback from the 
-    /// calling thread.
-    /// </summary>
-    internal class FileWriterStop : Message
-    {
-        /// 03/09/2016 - CLH
-        /// <summary>
-        /// The callback to be executed when finished writing.
-        /// </summary>
-        public Action<string, int> p_DoneCallback;
-
-        public FileWriterStop(Action<string, int> Callback)
-        {
-            p_DoneCallback = Callback;
         }
     }
 }

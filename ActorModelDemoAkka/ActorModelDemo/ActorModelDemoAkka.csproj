@@ -54,7 +54,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Actor.cs" />
     <Compile Include="Actors\FileWriter.cs" />
     <Compile Include="ActorTestDialog.cs">
       <SubType>Form</SubType>
