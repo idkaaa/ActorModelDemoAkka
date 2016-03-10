@@ -138,7 +138,7 @@ namespace ActorModelDemo.Actors
         {
             if (p_IsWriting == false)
             {
-                Debug.Print($"Content Message disregarded. Writing has not started.");
+                Debug.Print($"Unhandled content message: {ContentMessage.p_Content}");
                 return;
             }
             Debug.Print($"Writing file content: {ContentMessage.p_Content}");
