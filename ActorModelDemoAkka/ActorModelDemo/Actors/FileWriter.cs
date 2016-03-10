@@ -21,8 +21,8 @@ namespace ActorModelDemo.Actors
         IHandle<FileWriter.Content>
     {
 
-        ///Messages:
- 
+        #region Messages
+
         /// 03/09/2016 - CLH
         /// <summary>
         /// The message to start the fileWriter.
@@ -78,6 +78,8 @@ namespace ActorModelDemo.Actors
                 p_DoneCallback = Callback;
             }
         }
+
+        #endregion
 
         /// 03/09/2016 - CLH
         /// <summary>
