@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Akka.Actor;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +14,11 @@ namespace ActorModelDemo.Actors
     /// This class is an actor that writes files and sends
     /// results.
     /// </summary>
-    class FileWriter : Actor
+    class FileWriter :
+        TypedActor, 
+        IHandle<FileWriterStart>, 
+        IHandle<FileWriterStop>, 
+        IHandle<FileWriterContent>
     {
         /// 03/09/2016 - CLH
         /// <summary>

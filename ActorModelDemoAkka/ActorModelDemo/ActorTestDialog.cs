@@ -1,4 +1,5 @@
 ﻿using ActorModelDemo.Actors;
+using Akka.Actor;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,7 +22,7 @@ namespace ActorModelDemo
         /// <summary>
         /// The file writer actor.
         /// </summary>
-        private FileWriter p_WriterActor = new FileWriter();
+        private IActorRef p_WriterActor;
 
         /// <summary>
         /// The message number, each message is unique
@@ -37,6 +38,9 @@ namespace ActorModelDemo
         {
             InitializeComponent();
             c_TimerMessageTimer.Interval = 1000;  // 1000ms timer for now
+            var system = ActorSystem.Create("MyActorSystem");
+            p_WriterActor = system.ActorOf<FileWriter>("fileWriter");
+            
         }
 
         /// <summary>
@@ -85,7 +89,7 @@ namespace ActorModelDemo
             string Message = $"Message {p_MessageNumber++}";
             Debug.Print($"Sending: {Message}");
             FileWriterContent ContentMessage = new FileWriterContent(Message);
-            p_WriterActor.p_Send(ContentMessage);
+            p_WriterActor.Tell(ContentMessage);
         }
 
         /// <summary>
@@ -100,7 +104,7 @@ namespace ActorModelDemo
 
             Debug.Print($"Starting file: {FileName}");
             FileWriterStart StartMessage = new FileWriterStart(FileName);
-            p_WriterActor.p_Send(StartMessage);
+            p_WriterActor.Tell(StartMessage);
         }
 
         /// <summary>
@@ -120,7 +124,7 @@ namespace ActorModelDemo
             Action<string, int> Callback =
                 new Action<string, int>(f_UpdateDisplayWhenDone);
             FileWriterStop StopMessage = new FileWriterStop(Callback);
-            p_WriterActor.p_Send(StopMessage);
+            p_WriterActor.Tell(StopMessage);
         }
     }
 }
