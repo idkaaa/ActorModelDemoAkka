@@ -20,9 +20,19 @@ namespace ActorModelDemo
     public partial class ActorTestDialog : Form
     {
         /// <summary>
+        /// The actor system.
+        /// </summary>
+        private ActorSystem p_ActorSystem;
+
+        /// <summary>
+        /// The interface for communicating with the file writing actor.
+        /// </summary>
+        private Inbox p_FileWriterInbox;
+
+        /// <summary>
         /// The file writer actor.
         /// </summary>
-        private IActorRef p_WriterActor;
+        private IActorRef p_FileWriter;
 
         /// <summary>
         /// The message number, each message is unique
@@ -38,8 +48,9 @@ namespace ActorModelDemo
         {
             InitializeComponent();
             c_TimerMessageTimer.Interval = 1000;  // 1000ms timer for now
-            var system = ActorSystem.Create("MyActorSystem");
-            p_WriterActor = system.ActorOf<FileWriter>("fileWriter");
+            p_ActorSystem = ActorSystem.Create("MyActorSystem");
+            p_FileWriter = p_ActorSystem.ActorOf<FileWriter>("fileWriter");
+            p_FileWriterInbox = Inbox.Create(p_ActorSystem);
         }
 
         /// <summary>
@@ -83,12 +94,21 @@ namespace ActorModelDemo
         /// <summary>
         /// Send each message to the actor
         /// </summary>
-        private void c_TimerMessageTimer_Tick(object sender, EventArgs e)
+        private async void c_TimerMessageTimer_Tick(object sender, EventArgs e)
         {
             string Message = $"Message {p_MessageNumber++}";
             Debug.Print($"Sending: {Message}");
             FileWriter.Content ContentMessage = new FileWriter.Content(Message);
-            p_WriterActor.Tell(ContentMessage);
+            p_FileWriterInbox.Send(p_FileWriter, ContentMessage);
+            try
+            {
+                await p_FileWriterInbox.ReceiveAsync(TimeSpan.FromSeconds(2));
+                Debug.Print($"Confirmed recieved message: {Message}");
+            }
+            catch (TimeoutException)
+            {
+                Debug.Print($"Failed to confirm reciept of message: {Message}");
+            }
         }
 
         /// <summary>
@@ -103,13 +123,13 @@ namespace ActorModelDemo
 
             Debug.Print($"Starting file: {FileName}");
             FileWriter.Start StartMessage = new FileWriter.Start(FileName);
-            p_WriterActor.Tell(StartMessage);
+            p_FileWriterInbox.Send(p_FileWriter,StartMessage);
         }
 
         /// <summary>
         /// Stop the file
         /// </summary>
-        private void c_ButtonStopFile_Click(object sender, EventArgs e)
+        private async void c_ButtonStopFile_Click(object sender, EventArgs e)
         {
             c_ButtonStartFile.Enabled = true;
             c_ButtonStopFile.Enabled = false;
@@ -121,7 +141,20 @@ namespace ActorModelDemo
             Action<string, int> Callback =
                 new Action<string, int>(f_UpdateDisplayWhenDone);
             FileWriter.Stop StopMessage = new FileWriter.Stop(Callback);
-            p_WriterActor.Tell(StopMessage);
+            p_FileWriterInbox.Send(p_FileWriter, StopMessage);
+            try
+            {
+                //can't use this because we aren't inside of an actor
+                //bool ShutdownSuccess = await p_WriterActor.GracefulStop(TimeSpan.FromSeconds(2));
+
+                //can use inbox
+                await p_FileWriterInbox.ReceiveAsync(TimeSpan.FromSeconds(5));
+                Debug.Print($"Successfully stopped actor.");
+            }
+            catch (Exception)
+            {
+                Debug.Print($"Failed to stop actor.");
+            }
         }
     }
 }
