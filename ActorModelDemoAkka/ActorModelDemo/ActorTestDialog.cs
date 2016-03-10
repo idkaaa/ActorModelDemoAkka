@@ -58,7 +58,7 @@ namespace ActorModelDemo
         /// </summary>
         private void c_ButtonEnableTimer_Click(object sender, EventArgs e)
         {
-            Debug.Print("Enabling the timer, messages will start to be sent");
+            Debug.Print("UI Enabling the timer, messages will start to be sent");
             c_TimerMessageTimer.Start();
             c_ButtonStartFile.Enabled = true;
             c_ButtonEnableTimer.Enabled = false;
@@ -70,7 +70,7 @@ namespace ActorModelDemo
         /// </summary>
         private void c_ButtonDisableTimer_Click(object sender, EventArgs e)
         {
-            Debug.Print("Disabling the timer, no  more messages will be coming");
+            Debug.Print("UI Disabling the timer, no  more messages will be coming");
             c_ButtonDisableTimer.Enabled = false;
             c_ButtonStartFile.Enabled = false;
             c_ButtonEnableTimer.Enabled = true;
@@ -97,33 +97,42 @@ namespace ActorModelDemo
         private async void c_TimerMessageTimer_Tick(object sender, EventArgs e)
         {
             string Message = $"Message {p_MessageNumber++}";
-            Debug.Print($"Sending: {Message}");
+            Debug.Print($"UI Sending: {Message}");
             FileWriter.Content ContentMessage = new FileWriter.Content(Message);
             p_FileWriterInbox.Send(p_FileWriter, ContentMessage);
             try
             {
                 await p_FileWriterInbox.ReceiveAsync(TimeSpan.FromSeconds(2));
-                Debug.Print($"Confirmed recieved message: {Message}");
+                Debug.Print($"UI Confirmed actor recieved message: {Message}");
             }
             catch (TimeoutException)
             {
-                Debug.Print($"Failed to confirm reciept of message: {Message}");
+                Debug.Print($"UI Failed to confirm Actor recieved message: {Message}");
             }
         }
 
         /// <summary>
         /// When starting a file, record the file name
         /// </summary>
-        private void c_ButtonStartFile_Click(object sender, EventArgs e)
+        private async void c_ButtonStartFile_Click(object sender, EventArgs e)
         {
             string FileName = $"File-{p_FileNumber++}.txt";
             c_ButtonStopFile.Enabled = true;
             c_ButtonStartFile.Enabled = false;
             c_ButtonDisableTimer.Enabled = false;
 
-            Debug.Print($"Starting file: {FileName}");
+            Debug.Print($"UI Starting file: {FileName}");
             FileWriter.Start StartMessage = new FileWriter.Start(FileName);
             p_FileWriterInbox.Send(p_FileWriter,StartMessage);
+            try
+            {
+                await p_FileWriterInbox.ReceiveAsync(TimeSpan.FromSeconds(2));
+                Debug.Print($"UI Confirmed actor started file: {FileName}");
+            }
+            catch (TimeoutException)
+            {
+                Debug.Print($"UI Failed to confirm Actor started file: {FileName}");
+            }
         }
 
         /// <summary>
@@ -135,7 +144,7 @@ namespace ActorModelDemo
             c_ButtonStopFile.Enabled = false;
             c_ButtonDisableTimer.Enabled = true;
 
-            Debug.Print($"Stopping the file.");
+            Debug.Print($"UI Sending Stop Writing message.");
 
             //assign callback when telling writer to stop
             Action<string, int> Callback =
@@ -149,11 +158,11 @@ namespace ActorModelDemo
 
                 //can use inbox
                 await p_FileWriterInbox.ReceiveAsync(TimeSpan.FromSeconds(5));
-                Debug.Print($"Successfully stopped actor.");
+                Debug.Print($"UI Confirmed Successfully stopped actor.");
             }
             catch (Exception)
             {
-                Debug.Print($"Failed to stop actor.");
+                Debug.Print($"UI Failed to stop actor.");
             }
         }
     }

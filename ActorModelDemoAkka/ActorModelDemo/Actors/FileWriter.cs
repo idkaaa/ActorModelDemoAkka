@@ -113,19 +113,19 @@ namespace ActorModelDemo.Actors
         {
             if (p_IsWriting == true)
             {
-                Debug.Print($"Start Message disregarded. Already writing to file: {p_FileName?.ToString()}");
+                Debug.Print($"Actor Start Message disregarded. Already writing to file: {p_FileName?.ToString()}");
                 return;
             }
             p_FileName = StartMessage.p_FileName;
             p_MessageCount = 0;
-            Debug.Print($"Opening file to write: {p_FileName}");
+            Debug.Print($"Actor Opening file to write: {p_FileName}");
             try
             {
                 p_Writer = new StreamWriter(p_FileName);
             }
             catch (Exception Ex)
             {
-                Debug.Print($"Failed openeing file to write because: {Ex.Message}");
+                Debug.Print($"Actor Failed openeing file to write because: {Ex.Message}");
             }
             p_IsWriting = true;
         }
@@ -138,10 +138,10 @@ namespace ActorModelDemo.Actors
         {
             if (p_IsWriting == false)
             {
-                Debug.Print($"Unhandled content message: {ContentMessage.p_Content}");
+                Debug.Print($"Actor received Unhandled content message: {ContentMessage.p_Content}");
                 return;
             }
-            Debug.Print($"Writing file content: {ContentMessage.p_Content}");
+            Debug.Print($"Actor Writing file content: {ContentMessage.p_Content}");
             try
             {
                 p_Writer.WriteLine(ContentMessage.p_Content);
@@ -149,7 +149,7 @@ namespace ActorModelDemo.Actors
             }
             catch (Exception Ex)
             {
-                Debug.Print($"Failed writing to file because: {Ex.Message}");
+                Debug.Print($"Actor Failed writing to file because: {Ex.Message}");
             }
         }
 
@@ -162,26 +162,26 @@ namespace ActorModelDemo.Actors
         {
             if (p_IsWriting == false)
             {
-                Debug.Print($"Stop Message disregarded. Writing has not started.");
+                Debug.Print($"Actor Stop Message disregarded. Writing has not started.");
                 return;
             }
-            Debug.Print($"Stop message recieved. Closing file: {p_FileName}");
+            Debug.Print($"Actor Stop message recieved. Closing file: {p_FileName}");
             try
             {
                 p_Writer.Close();
             }
             catch (Exception Ex)
             {
-                Debug.Print($"Failed closing file because: {Ex.Message}");
+                Debug.Print($"Actor Failed closing file because: {Ex.Message}");
             }
             try
             {
-                Debug.Print($"Calling callback from FileWriter thread: {Thread.CurrentThread.ManagedThreadId}");
+                Debug.Print($"Actor Calling callback from FileWriter thread: {Thread.CurrentThread.ManagedThreadId}");
                 StopMessage.p_DoneCallback(p_FileName, p_MessageCount);
             }
             catch (Exception Ex)
             {
-                Debug.Print($"Couldn't call callback because: {Ex.Message}");
+                Debug.Print($"Actor Couldn't call callback because: {Ex.Message}");
             }
             p_IsWriting = false;
         }
